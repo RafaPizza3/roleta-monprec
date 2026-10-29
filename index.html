@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Roleta PicPay</title>
+<style>
+:root {
+--picpay-green: #21C25E;
+--picpay-green-bright: #11C76F;
+--picpay-green-dark: #0B6E36;
+--picpay-green-deep: #072916;
+--picpay-dark: #121212;
+--picpay-white: #FFFFFF;
+}
+
+* {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+user-select: none;
+-webkit-user-select: none;
+}
+
+body {
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+background: linear-gradient(180deg, #F4F6F8 0%, #E6ECEF 100%);
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+Helvetica, Arial, sans-serif;
+color: var(--picpay-dark);
+overflow: hidden;
+padding: 20px;
+}
+
+.brand-header {
+margin-bottom: 24px;
+text-align: center;
+}
+
+.brand-logo {
+font-size: 2.2rem;
+font-weight: 800;
+letter-spacing: -0.03em;
+color: var(--picpay-dark);
+display: inline-flex;
+align-items: center;
+gap: 6px;
+}
+
+.brand-logo span {
+color: var(--picpay-green);
+}
+
+.wheel-stage {
+position: relative;
+width: min(84vw, 500px);
+height: min(84vw, 500px);
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+/* Seta / Ponteiro no topo */
+.pointer {
+position: absolute;
+top: -18px;
+left: 50%;
+transform: translateX(-50%);
+z-index: 20;
+width: 44px;
+height: 52px;
+filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.45));
+pointer-events: none;
+}
+
+.wheel-outer-ring {
+width: 100%;
+height: 100%;
+border-radius: 50%;
+padding: 14px;
+background: linear-gradient(145deg, #27d86b, #0b5e2e);
+box-shadow:
+0 20px 45px rgba(11, 110, 54, 0.22),
+0 6px 16px rgba(0, 0, 0, 0.12),
+0 0 0 6px #FFFFFF,
+inset 0 2px 6px rgba(255, 255, 255, 0.35);
+position: relative;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+canvas#wheel {
+width: 100%;
+height: 100%;
+border-radius: 50%;
+display: block;
+cursor: pointer;
+transition: transform 4.6s cubic-bezier(0.12, 0.8, 0.08, 1);
+will-change: transform;
+}
+
+/* Botão central da roleta */
+.center-cap {
+position: absolute;
+width: 86px;
+height: 86px;
+border-radius: 50%;
+background: linear-gradient(145deg, #21C25E, #0E8A40);
+border: 5px solid var(--picpay-white);
+box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45), inset 0 2px 4px rgba(255,
+255, 255, 0.35);
+display: flex;
+align-items: center;
+justify-content: center;
+font-weight: 800;
+font-size: 0.95rem;
+letter-spacing: 0.04em;
+text-transform: uppercase;
+color: var(--picpay-white);
+cursor: pointer;
+z-index: 10;
+transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.center-cap:hover {
+transform: scale(1.05);
+filter: brightness(1.06);
+}
+
+.center-cap:active {
+transform: scale(0.97);
+}
+
+.controls {
+margin-top: 28px;
+}
+
+.spin-btn {
+background: var(--picpay-green);
+color: #FFFFFF;
+border: none;
+padding: 15px 44px;
+font-size: 1.1rem;
+font-weight: 800;
+border-radius: 999px;
+cursor: pointer;
+box-shadow: 0 10px 24px rgba(33, 194, 94, 0.35);
+transition: transform 0.15s ease, background 0.15s ease, opacity 0.2s ease;
+letter-spacing: 0.02em;
+}
+
+.spin-btn:hover:not(:disabled) {
+background: #2ae06f;
+transform: translateY(-2px);
+}
+
+.spin-btn:active:not(:disabled) {
+transform: translateY(0);
+}
+
+.spin-btn:disabled {
+opacity: 0.55;
+cursor: not-allowed;
+}
+</style>
+</head>
+<body>
+
+<header class="brand-header">
+<div class="brand-logo"><span>PicPay</span></div>
+</header>
+
+<main class="wheel-stage">
+<svg class="pointer" viewBox="0 0 44 52" fill="none"
+xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<path d="M22 50L5 18C2.5 13 6 6 12 6H32C38 6 41.5 13 39 18L22 50Z"
+fill="#FFFFFF" stroke="#0B6E36" stroke-width="3.5"
+stroke-linejoin="round"/>
+<circle cx="22" cy="17" r="5" fill="#21C25E"/>
+</svg>
+
+<div class="wheel-outer-ring">
+<canvas id="wheel" width="900" height="900" aria-label="Roleta de
+brindes PicPay"></canvas>
+<button type="button" class="center-cap" id="centerSpinBtn"
+aria-label="Girar roleta">
+Girar
+</button>
+</div>
+</main>
+
+<div class="controls">
+<button type="button" class="spin-btn" id="spinBtn">Girar Roleta</button>
+</div>
+
+<script>
+const slices = [
+{ label: "Brownie", bg: "#21C25E", text: "#FFFFFF", weight: 12.5 },
+{ label: "Chaveiro", bg: "#FFFFFF", text: "#0B6E36", weight: 12.5 },
+{ label: "Não foi dessa vez!", bg: "#0B6E36", text: "#FFFFFF", weight: 25 },
+{ label: "Ecobag", bg: "#21C25E", text: "#FFFFFF", weight: 12.5 },
+{ label: "Caneta", bg: "#FFFFFF", text: "#0B6E36", weight: 12.5 },
+{ label: "Não foi dessa vez!", bg: "#0B6E36", text: "#FFFFFF", weight: 25 }
+];
+
+const canvas = document.getElementById("wheel");
+const ctx = canvas.getContext("2d");
+const spinBtn = document.getElementById("spinBtn");
+const centerSpinBtn = document.getElementById("centerSpinBtn");
+
+const size = canvas.width;
+const center = size / 2;
+const radius = center - 8;
+const numSlices = slices.length;
+const sliceAngle = (2 * Math.PI) / numSlices;
+const startOffset = -Math.PI / 2 - sliceAngle / 2;
+
+function drawWheel() {
+ctx.clearRect(0, 0, size, size);
+
+for (let i = 0; i < numSlices; i++) {
+const startAngle = startOffset + i * sliceAngle;
+const endAngle = startAngle + sliceAngle;
+const slice = slices[i];
+
+// Desenha a fatia
+ctx.beginPath();
+ctx.moveTo(center, center);
+ctx.arc(center, center, radius, startAngle, endAngle);
+ctx.closePath();
+ctx.fillStyle = slice.bg;
+ctx.fill();
+
+// Linha divisória
+ctx.lineWidth = 4;
+ctx.strokeStyle = "rgba(7, 41, 22, 0.25)";
+ctx.stroke();
+
+// Texto da fatia
+ctx.save();
+ctx.translate(center, center);
+ctx.rotate(startAngle + sliceAngle / 2);
+ctx.textAlign = "right";
+ctx.textBaseline = "middle";
+ctx.fillStyle = slice.text;
+
+if (slice.label.length > 12) {
+ctx.font = "800 28px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+const words = slice.label.split(" ");
+const line1 = words.slice(0, 2).join(" ");
+const line2 = words.slice(2).join(" ");
+ctx.fillText(line1, radius - 42, -16);
+ctx.fillText(line2, radius - 42, 18);
+} else {
+ctx.font = "800 36px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+ctx.fillText(slice.label, radius - 46, 0);
+}
+
+ctx.restore();
+}
+
+// Pontos decorativos na borda interna
+for (let i = 0; i < numSlices * 2; i++) {
+const angle = startOffset + (i * Math.PI) / numSlices;
+const dotX = center + Math.cos(angle) * (radius - 14);
+const dotY = center + Math.sin(angle) * (radius - 14);
+ctx.beginPath();
+ctx.arc(dotX, dotY, 5, 0, Math.PI * 2);
+ctx.fillStyle = i % 2 === 0 ? "#FFFFFF" : "#11C76F";
+ctx.fill();
+}
+}
+
+let currentRotation = 0;
+let isSpinning = false;
+
+function pickWeightedSliceIndex() {
+const totalWeight = slices.reduce((sum, s) => sum + s.weight, 0);
+let rand = Math.random() * totalWeight;
+for (let i = 0; i < slices.length; i++) {
+if (rand < slices[i].weight) return i;
+rand -= slices[i].weight;
+}
+return 2;
+}
+
+function spin() {
+if (isSpinning) return;
+isSpinning = true;
+spinBtn.disabled = true;
+
+const targetIndex = pickWeightedSliceIndex();
+const sliceDeg = 360 / numSlices; // 60 graus por fatia
+
+const jitter = (Math.random() - 0.5) * (sliceDeg * 0.72);
+const targetMod = (((360 - targetIndex * sliceDeg + jitter) % 360) + 360) % 360;
+
+const currentMod = ((currentRotation % 360) + 360) % 360;
+const deltaToTarget = (targetMod - currentMod + 360) % 360;
+
+// Pelo menos 6 a 9 voltas completas + ajuste exato para a fatia sorteada
+const extraSpins = (6 + Math.floor(Math.random() * 4)) * 360;
+currentRotation += extraSpins + deltaToTarget;
+
+canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+setTimeout(() => {
+isSpinning = false;
+spinBtn.disabled = false;
+}, 4650);
+}
+
+drawWheel();
+
+spinBtn.addEventListener("click", spin);
+centerSpinBtn.addEventListener("click", spin);
+canvas.addEventListener("click", spin);
+window.addEventListener("keydown", (e) => {
+if (e.code === "Space" || e.code === "Enter") {
+e.preventDefault();
+spin();
+}
+});
+</script>
+</body>
+</html>
