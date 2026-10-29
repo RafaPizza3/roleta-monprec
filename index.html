@@ -24,6 +24,7 @@ user-select: none;
 
 body {
 min-height: 100vh;
+min-height: 100svh;
 display: flex;
 flex-direction: column;
 align-items: center;
@@ -32,7 +33,8 @@ background: linear-gradient(180deg, #F4F6F8 0%, #E6ECEF 100%);
 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
 Helvetica, Arial, sans-serif;
 color: var(--picpay-dark);
-overflow: hidden;
+overflow-x: hidden;
+overflow-y: auto;
 padding: 20px;
 }
 
@@ -167,6 +169,193 @@ transform: translateY(0);
 opacity: 0.55;
 cursor: not-allowed;
 }
+
+.prize-reveal {
+position: fixed;
+inset: 0;
+z-index: 50;
+display: grid;
+place-items: center;
+padding: 22px;
+background: rgba(5, 27, 15, 0.68);
+backdrop-filter: blur(7px);
+}
+
+.prize-reveal[hidden] {
+display: none;
+}
+
+.confetti-layer {
+position: fixed;
+inset: 0;
+z-index: 3;
+overflow: hidden;
+pointer-events: none;
+}
+
+.confetti-piece {
+position: absolute;
+top: -18px;
+width: 10px;
+height: 16px;
+border-radius: 2px;
+opacity: 0;
+animation: confetti-fall var(--fall-duration) var(--fall-delay) ease-in forwards;
+}
+
+@keyframes confetti-fall {
+0% { opacity: 1; transform: translate3d(0, -12px, 0) rotate(0deg); }
+80% { opacity: 1; }
+100% { opacity: 0; transform: translate3d(var(--drift), 110vh, 0) rotate(var(--rotation)); }
+}
+
+.prize-card {
+position: relative;
+z-index: 2;
+width: min(100%, 430px);
+overflow: hidden;
+padding: 34px 26px 26px;
+border: 3px solid rgba(255, 255, 255, 0.9);
+border-radius: 30px;
+background: linear-gradient(145deg, #FFFFFF 0%, #E9FFF1 100%);
+box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35), 0 0 0 8px rgba(33, 194, 94, 0.28);
+text-align: center;
+animation: reveal-in 0.5s cubic-bezier(0.2, 0.9, 0.25, 1.2) both;
+}
+
+.prize-card::before,
+.prize-card::after {
+position: absolute;
+width: 170px;
+height: 170px;
+border-radius: 50%;
+background: rgba(33, 194, 94, 0.12);
+content: "";
+pointer-events: none;
+}
+
+.prize-card::before { top: -105px; left: -75px; }
+.prize-card::after { right: -85px; bottom: -120px; }
+
+.prize-icon {
+position: relative;
+z-index: 1;
+display: grid;
+width: 76px;
+height: 76px;
+place-items: center;
+margin: 0 auto 14px;
+border: 4px solid #FFFFFF;
+border-radius: 50%;
+background: linear-gradient(145deg, #2AE06F, #0B8A43);
+box-shadow: 0 8px 22px rgba(11, 110, 54, 0.28);
+font-size: 2.3rem;
+}
+
+.prize-eyebrow {
+position: relative;
+z-index: 1;
+color: var(--picpay-green-dark);
+font-size: 0.76rem;
+font-weight: 800;
+letter-spacing: 0.1em;
+text-transform: uppercase;
+}
+
+.prize-name {
+position: relative;
+z-index: 1;
+margin-top: 4px;
+color: var(--picpay-dark);
+font-size: clamp(1.25rem, 5vw, 1.65rem);
+font-weight: 800;
+}
+
+.prize-message {
+position: relative;
+z-index: 1;
+margin-top: 4px;
+color: #53615A;
+font-size: 0.92rem;
+line-height: 1.4;
+}
+
+.prize-reveal.is-miss .prize-card {
+background: linear-gradient(145deg, #FFFFFF 0%, #F0F5F2 100%);
+}
+
+.prize-reveal.is-miss .prize-icon {
+background: linear-gradient(145deg, #87958D, #53615A);
+}
+
+.prize-close {
+position: relative;
+z-index: 1;
+width: 100%;
+margin-top: 24px;
+padding: 15px 24px;
+border: 0;
+border-radius: 999px;
+background: linear-gradient(100deg, #21C25E, #0B8A43);
+box-shadow: 0 9px 22px rgba(11, 110, 54, 0.26);
+color: #FFFFFF;
+font: inherit;
+font-size: 1rem;
+font-weight: 800;
+cursor: pointer;
+transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.prize-close:hover { transform: translateY(-2px); filter: brightness(1.06); }
+.prize-close:active { transform: translateY(0); }
+.prize-close:focus-visible { outline: 3px solid #0B6E36; outline-offset: 4px; }
+
+@keyframes reveal-in {
+from { opacity: 0; transform: translateY(12px) scale(0.96); }
+to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 600px), (max-height: 720px) {
+body {
+justify-content: flex-start;
+padding: 12px 16px 18px;
+}
+
+.brand-header {
+margin-bottom: 10px;
+}
+
+.brand-logo {
+font-size: 1.8rem;
+}
+
+.wheel-stage {
+width: min(78vw, 52vh, 420px);
+height: min(78vw, 52vh, 420px);
+}
+
+.controls {
+margin-top: 16px;
+}
+
+.spin-btn {
+padding: 13px 36px;
+}
+
+.prize-reveal {
+padding: 16px;
+}
+}
+
+@media (max-height: 620px) {
+body { padding-top: 8px; }
+.brand-header { margin-bottom: 6px; }
+.wheel-stage {
+width: min(66vw, 45vh, 340px);
+height: min(66vw, 45vh, 340px);
+}
+.controls { margin-top: 10px; }
+}
 </style>
 </head>
 <body>
@@ -198,6 +387,17 @@ Girar
 <button type="button" class="spin-btn" id="spinBtn">Girar Roleta</button>
 </div>
 
+<section class="prize-reveal" id="prizeReveal" role="dialog" aria-modal="true" aria-labelledby="prizeEyebrow prizeName" aria-describedby="prizeMessage" hidden>
+<div class="confetti-layer" id="confettiLayer" aria-hidden="true"></div>
+<div class="prize-card">
+<div class="prize-icon" id="prizeIcon" aria-hidden="true">🎉</div>
+<p class="prize-eyebrow" id="prizeEyebrow">Parabéns, você ganhou!</p>
+<p class="prize-name" id="prizeName"></p>
+<p class="prize-message" id="prizeMessage"></p>
+<button type="button" class="prize-close" id="prizeCloseBtn">Continuar</button>
+</div>
+</section>
+
 <script>
 const slices = [
 { label: "Brownie", bg: "#21C25E", text: "#FFFFFF", weight: 10 },
@@ -213,6 +413,13 @@ const canvas = document.getElementById("wheel");
 const ctx = canvas.getContext("2d");
 const spinBtn = document.getElementById("spinBtn");
 const centerSpinBtn = document.getElementById("centerSpinBtn");
+const prizeReveal = document.getElementById("prizeReveal");
+const prizeEyebrow = document.getElementById("prizeEyebrow");
+const prizeName = document.getElementById("prizeName");
+const prizeMessage = document.getElementById("prizeMessage");
+const prizeIcon = document.getElementById("prizeIcon");
+const prizeCloseBtn = document.getElementById("prizeCloseBtn");
+const confettiLayer = document.getElementById("confettiLayer");
 
 const size = canvas.width;
 const center = size / 2;
@@ -279,6 +486,30 @@ ctx.fill();
 
 let currentRotation = 0;
 let isSpinning = false;
+let confettiCleanupTimer;
+
+function releaseConfetti() {
+confettiLayer.replaceChildren();
+const colors = ["#21C25E", "#11C76F", "#FFD447", "#FF6B6B", "#53C7F0", "#FFFFFF"];
+for (let i = 0; i < 72; i++) {
+const piece = document.createElement("span");
+piece.className = "confetti-piece";
+piece.style.left = `${Math.random() * 100}%`;
+piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+piece.style.setProperty("--fall-duration", `${2.4 + Math.random() * 2.2}s`);
+piece.style.setProperty("--fall-delay", `${Math.random() * 0.9}s`);
+piece.style.setProperty("--drift", `${Math.round((Math.random() - 0.5) * 240)}px`);
+piece.style.setProperty("--rotation", `${Math.round(360 + Math.random() * 900)}deg`);
+if (Math.random() > 0.55) {
+piece.style.width = "7px";
+piece.style.height = "7px";
+piece.style.borderRadius = "50%";
+}
+confettiLayer.append(piece);
+}
+window.clearTimeout(confettiCleanupTimer);
+confettiCleanupTimer = window.setTimeout(() => confettiLayer.replaceChildren(), 6000);
+}
 
 function pickWeightedSliceIndex() {
 const totalWeight = slices.reduce((sum, s) => sum + s.weight, 0);
@@ -294,6 +525,8 @@ function spin() {
 if (isSpinning) return;
 isSpinning = true;
 spinBtn.disabled = true;
+prizeReveal.hidden = true;
+prizeReveal.classList.remove("is-miss");
 
 const targetIndex = pickWeightedSliceIndex();
 const sliceDeg = 360 / numSlices; // 60 graus por fatia
@@ -313,8 +546,32 @@ canvas.style.transform = `rotate(${currentRotation}deg)`;
 setTimeout(() => {
 isSpinning = false;
 spinBtn.disabled = false;
+const prize = slices[targetIndex].label;
+const missed = prize === "Não foi dessa vez!";
+prizeEyebrow.textContent = missed ? "Quase lá!" : "Parabéns, você ganhou!";
+prizeName.textContent = prize;
+prizeIcon.textContent = missed ? "🙂" : "🎉";
+prizeMessage.textContent = missed
+? "Putz! Dessa vez não rolou... Obrigado(a) pela visita!"
+: "Seu prêmio está esperando por você. Aproveite!";
+prizeReveal.classList.toggle("is-miss", missed);
+prizeReveal.hidden = false;
+if (missed) {
+window.clearTimeout(confettiCleanupTimer);
+confettiLayer.replaceChildren();
+} else {
+releaseConfetti();
+}
+prizeCloseBtn.focus();
 }, 4650);
 }
+
+prizeCloseBtn.addEventListener("click", () => {
+prizeReveal.hidden = true;
+window.clearTimeout(confettiCleanupTimer);
+confettiLayer.replaceChildren();
+spinBtn.focus();
+});
 
 drawWheel();
 
